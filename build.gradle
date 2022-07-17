@@ -1,68 +1,63 @@
 buildscript {
     repositories {
-        jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-    }
-}
-apply plugin: 'net.minecraftforge.gradle.forge'
-
-repositories {
-    maven {
-        url = "http://maven.blamejared.com"
-    }
-    maven {
-        url = "http://dvs1.progwml6.com/files/maven"
-    }
-    maven {
-        url = "http://tehnut.info/maven"
-    }
-    maven {
-        url = "http://chickenbones.net/maven/"
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
-version = "4.7.1102.16"
-group= "ec3"
-archivesBaseName = "EssentialCraftUnofficial"
+apply plugin: 'forge'
 
-sourceCompatibility = targetCompatibility = "1.8"
-compileJava {
-    sourceCompatibility = targetCompatibility = "1.8"
-}
+version = "1.0"
+group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "modid"
 
 minecraft {
-    version = "1.10.2-12.18.3.2254"
-    runDir = "run"
-    mappings = "stable_29"
-    makeObfSourceJar = false
+    version = "1.7.10-10.13.4.1614-1.7.10"
+    runDir = "eclipse"
 }
 
 dependencies {
-    compile project(':DummyCoreUnofficial')
+    // you may put jars on which you depend on in ./libs
+    // or you may define them like so..
+    //compile "some.group:artifact:version:classifier"
+    //compile "some.group:artifact:version"
+      
+    // real examples
+    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
 
-    deobfCompile "MineTweaker3:MineTweaker3-MC1102-Main:1.10.2-3.0.24.82"
-    deobfCompile "com.blamejared:MTLib:1.0.2.10"
-    deobfCompile "mezz.jei:jei_1.10.2:3.14.7.417"
-    deobfCompile "slimeknights.mantle:Mantle:1.10.2-1.1.5.205"
-    deobfCompile "slimeknights:TConstruct:1.10.2-2.6.3.501"
-    deobfCompile "mcp.mobius.waila:Hwyla:1.8.12-B26_1.10.2"
-    deobfCompile "com.wayoftime.bloodmagic:BloodMagic:1.10.2-2.1.9-78"
-    deobfCompile "info.amerifrance.guideapi:Guide-API:1.10.2-2.0.3-46"
-    deobfCompile "codechicken:CodeChickenLib:1.10.2-2.5.9.308:universal"
+    // for more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
 }
 
 processResources
 {
-}
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
 
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
-}
-
-artifacts {
-    archives deobfJar
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 }
